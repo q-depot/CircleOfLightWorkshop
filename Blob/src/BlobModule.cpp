@@ -21,7 +21,7 @@ BlobModule::BlobModule( Vec3f pos, int pointsN )
     {
         Point2f point;
         
-        float angle = 2.0f * M_PI * (float)k / (float)pointsN;
+        float angle = 2.0f * (float)M_PI * (float)k / (float)pointsN;
         point.pos   = ci::Vec2f( cos(angle), sin(angle) );      // pos and dir are normalised
         point.dir   = point.pos;
         
@@ -36,10 +36,11 @@ void BlobModule::update( vector<FixtureRef> fixtures, float speed, float radius 
     float length, vel;
     for ( size_t k=0; k < mPoints.size(); k++ )
     {
-        vel          =  speed * 0.5f * ( 1.0f + tanf( mPoints[k].dir.y + mPoints[k].dir.x + getElapsedSeconds() ) );
-//        vel             = speed * ( mPoints[k].dir.y + 2.0f * mPoints[k].dir.x + getElapsedSeconds() );
-        length          = radius * (atanf( vel ));
-        
+        vel             = 0.5f * ( 1.0f + tanf( mPoints[k].dir.y + mPoints[k].dir.x + speed * (float)getElapsedSeconds() ) );
+        vel             = atanf( vel );
+        // vel             = speed * ( mPoints[k].dir.y + 2.0f * mPoints[k].dir.x + getElapsedSeconds() );
+        length          = radius * vel;
+
         mPoints[k].pos  = length * mPoints[k].dir;
     }
     
@@ -74,10 +75,12 @@ void BlobModule::render()
 
 bool BlobModule::containsPoint( Vec2f pos2f )
 {
-    int i, j, c = 0;
+    int i, j;
+    bool c = false;
+
     Vec2f posJ, posI;
     
-    for ( i = 0, j = mPoints.size()-1; i < mPoints.size(); j = i++ )
+    for ( i = 0, j = (int)mPoints.size()-1; i < (int)mPoints.size(); j = i++ )
     {
         posJ = mPos.xz() + mPoints[j].pos;
         posI = mPos.xz() + mPoints[i].pos;
@@ -86,10 +89,6 @@ bool BlobModule::containsPoint( Vec2f pos2f )
             (pos2f.x < (posJ.x - posI.x) * (pos2f.y - posI.y) / (posJ.y-posI.y) + posI.x) )
             c = !c;
     }
-    
-    if (c)
-        return true;
-    
     
     return c;
 }
