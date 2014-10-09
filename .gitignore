@@ -59,7 +59,6 @@ bld/
 *.slo
 *.lo
 *.o
-*.obj
 *.so
 *.dylib
 *.dll
